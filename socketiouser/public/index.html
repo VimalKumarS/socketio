@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.map"></script>
+
+<!-- JavaScript -->
+<script src="//cdn.jsdelivr.net/alertifyjs/1.8.0/alertify.min.js"></script>
+
+<!-- CSS -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/alertifyjs/1.8.0/css/alertify.min.css"/>
+<!-- Default theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/alertifyjs/1.8.0/css/themes/default.min.css"/>
+<!-- Semantic UI theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/alertifyjs/1.8.0/css/themes/semantic.min.css"/>
+<!-- Bootstrap theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/alertifyjs/1.8.0/css/themes/bootstrap.min.css"/>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io("http://localhost:8080",{transports: ['websocket'], upgrade: false});
+    socket.on('message-from-server', function (evt) {
+        document.body.appendChild(document.createTextNode(evt.gretting));
+        socket.emit('message-from-client', {
+            greeting: 'hello from client'
+        })
+
+
+    });
+    socket.on('userList',function(data){
+        console.log(data);
+        data.forEach(function(x){
+            alertify.success(x);
+        })
+
+    })
+    socket.on('disconnect', function() {
+        console.log('disconnected');
+        //content.html("<b>Disconnected!</b>");
+        socket.disconnect();
+    });
+
+    $(document).ready(function(){
+        alertify.set('notifier','position', 'top-right');
+
+        $("#btnRegister").click(function(){
+            var user= $("#usr").val();
+            var poNumber= $("#poNumber").val();
+            socket.emit('POConnect', {
+
+                'username':user,
+                'poNumber':poNumber
+            });
+        })
+    })
+</script>
+<div>socket io example</div>
+<div style="margin: auto;width: 30%;">
+    <div class="form-group">
+        <label for="usr">UserName:</label>
+        <input type="text" class="form-control" id="usr">
+    </div>
+    <div class="form-group">
+        <label for="poNumber">PO Number:</label>
+        <input type="number" class="form-control" id="poNumber">
+    </div>
+    <button type="button" id="btnRegister" class="btn btn-default">Default</button>
+</div>
+</body>
+</html>
